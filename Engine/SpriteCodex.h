@@ -26,5 +26,7 @@ public:
 	static void DrawTileMeme( const Vei2& pos,Graphics& gfx );
 	static void DrawTileMemeRed( const Vei2& pos,Graphics& gfx );
 	// Tile selector function valid input 0-8
-	static void DrawTileNumber( const Vei2& pos, int n, Graphics& gfx );
+	static void DrawTileNumber( const Vei2& pos,int n,Graphics& gfx );
+	// Win Screen 254x192 center origin
+	static void DrawWin( const Vei2& pos,Graphics& gfx );
 };
