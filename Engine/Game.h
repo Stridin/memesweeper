@@ -23,6 +23,8 @@
 #include "Keyboard.h"
 #include "Mouse.h"
 #include "Graphics.h"
+#include "Sound.h"
+#include "SpriteCodex.h"
 #include "MemeField.h"
 
 class Game
@@ -44,5 +46,6 @@ private:
 	/********************************/
 	/*  User Variables              */
 	MemeField field;
+	Sound gameoverSound;
 	/********************************/
 };

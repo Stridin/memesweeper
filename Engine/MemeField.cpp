@@ -10,9 +10,9 @@ void MemeField::Tile::SpawnMeme()
 	hasMeme = true;
 }
 
-void MemeField::Tile::Draw( const Vei2& screenPos, bool fucked, Graphics& gfx ) const
+void MemeField::Tile::Draw( const Vei2& screenPos, GameState gameState, Graphics& gfx ) const
 {
-	if( !fucked )
+	if( gameState == GameState::Running )
 	{
 		switch ( state )
 		{
@@ -35,7 +35,7 @@ void MemeField::Tile::Draw( const Vei2& screenPos, bool fucked, Graphics& gfx ) 
 			break;
 		}
 	}
-	else // we are fucked
+	else if ( gameState == GameState::Loose ) // we are fucked
 	{
 		switch ( state )
 		{
@@ -73,12 +73,36 @@ void MemeField::Tile::Draw( const Vei2& screenPos, bool fucked, Graphics& gfx ) 
 			break;
 		}
 	}
+	else if ( gameState == GameState::Win ) // winrar
+	{
+		switch ( state )
+		{
+		case State::Hidden:
+			SpriteCodex::DrawTileButton( screenPos, gfx );
+			break;
+		case State::Flagged:
+			SpriteCodex::DrawTileMeme( screenPos, gfx );
+			SpriteCodex::DrawTileFlag( screenPos, gfx );
+			break;
+		case State::Revealed:
+			if ( !HasMeme() )
+			{
+				SpriteCodex::DrawTileNumber( screenPos, nNeighborMemes, gfx );
+			}
+			else
+			{
+				SpriteCodex::DrawTileMeme( screenPos, gfx );
+			}
+			break;
+		}
+	}
 }
 
-void MemeField::Tile::Reveal()
+void MemeField::Tile::Reveal( int& remainingHidden )
 {
 	assert( state == State::Hidden );
 	state = State::Revealed;
+	remainingHidden--;
 }
 
 bool MemeField::Tile::HasMeme() const
@@ -123,6 +147,9 @@ MemeField::MemeField( int nMemes )
 	std::uniform_int_distribution<int> xDist( 0, width - 1 );
 	std::uniform_int_distribution<int> yDist( 0, height - 1 );
 
+	remainingHidden = width * height - nMemes;
+	remainingMemes = nMemes;
+
 	for ( int nSpawned = 0; nSpawned < nMemes; ++nSpawned )
 	{
 		Vei2 spawnPos;
@@ -151,8 +178,12 @@ void MemeField::Draw( Graphics& gfx ) const
 	{
 		for ( gridPos.x = 0; gridPos.x < width; gridPos.x++ )
 		{
-			TileAt( gridPos ).Draw( gridPos * SpriteCodex::tileSize, isFucked, gfx );
+			TileAt( gridPos ).Draw( gridPos * SpriteCodex::tileSize, gameState, gfx );
 		}
+	}
+	if ( gameState == GameState::Win )
+	{
+		SpriteCodex::DrawWin( { gfx.ScreenWidth / 2, gfx.ScreenHeight / 2 }, gfx );
 	}
 }
 
@@ -163,17 +194,21 @@ RectI MemeField::GetRect() const
 
 void MemeField::OnRevealClick( const Vei2& screenPos )
 {
-	if( !isFucked )
+	if( gameState == GameState::Running )
 	{
 		const Vei2 gridPos = ScreenToGrid( screenPos );
 		assert( gridPos.x >= 0 && gridPos.x < width && gridPos.y >= 0 && gridPos.y < height );
 		Tile& tile = TileAt( gridPos );
 		if ( !tile.IsRevealed() && !tile.IsFlagged() )
 		{
-			tile.Reveal();
+			tile.Reveal( remainingHidden );
 			if ( tile.HasMeme() )
 			{
-				isFucked = true;
+				gameState = GameState::Loose;
+			}
+			if ( remainingHidden == 0 && remainingMemes == 0)
+			{
+				gameState = GameState::Win;
 			}
 		}
 	}
@@ -181,13 +216,25 @@ void MemeField::OnRevealClick( const Vei2& screenPos )
 
 void MemeField::OnFlagClick( const Vei2& screenPos )
 {
-	if( !isFucked )
+	if( gameState == GameState::Running )
 	{
 		const Vei2 gridPos = ScreenToGrid( screenPos );
 		assert( gridPos.x >= 0 && gridPos.x < width && gridPos.y >= 0 && gridPos.y < height );
 		Tile& tile = TileAt( gridPos );
 		if ( !tile.IsRevealed() )
 		{
+			if ( !tile.IsFlagged() && tile.HasMeme() )
+			{
+				remainingMemes--;
+				if ( remainingMemes == 0 && remainingHidden == 0)
+				{
+					gameState = GameState::Win;
+				}
+			}
+			else if ( tile.IsFlagged() && tile.HasMeme() )
+			{
+				remainingMemes++;
+			}
 			tile.ToggleFlag();
 		}
 	}
@@ -212,6 +259,11 @@ int MemeField::CountNeighborMemes( const Vei2& gridPos )
 		}
 	}
 	return count;
+}
+
+MemeField::GameState MemeField::GetState() const
+{
+	return gameState;
 }
 
 MemeField::Tile& MemeField::TileAt( const Vei2& gridPos )

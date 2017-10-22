@@ -25,7 +25,8 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	field( 20 )
+	field( 2 ),
+	gameoverSound( L"spayed.wav" )
 {
 }
 
@@ -46,13 +47,21 @@ void Game::UpdateModel()
 		{
 			const Vei2 mousePos = e.GetPos();
 			if ( field.GetRect().Contains( mousePos ) )
+			{
 				field.OnRevealClick( mousePos );
+				if ( field.GetState() == MemeField::GameState::Loose )
+				{
+					gameoverSound.Play( 1.0f, 0.1f );
+				}
+			}
 		}
 		else if ( e.GetType() == Mouse::Event::Type::RPress )
 		{
 			const Vei2 mousePos = e.GetPos();
 			if ( field.GetRect().Contains( mousePos ) )
+			{
 				field.OnFlagClick( mousePos );
+			}
 		}
 	}
 }
