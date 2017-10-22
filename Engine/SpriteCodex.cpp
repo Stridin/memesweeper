@@ -1006,7 +1006,7 @@ void SpriteCodex::DrawTileFlag( const Vei2& pos,Graphics& gfx )
 	gfx.PutPixel( 11 + pos.x,12 + pos.y,0,0,0 );
 }
 
-void SpriteCodex::DrawTileBomb( const Vei2& pos,Graphics& gfx )
+void SpriteCodex::DrawTileMeme( const Vei2& pos,Graphics& gfx )
 {
 	gfx.PutPixel( 0 + pos.x,0 + pos.y,128,128,128 );
 	gfx.PutPixel( 1 + pos.x,0 + pos.y,128,128,128 );
@@ -1215,7 +1215,7 @@ void SpriteCodex::DrawTileBomb( const Vei2& pos,Graphics& gfx )
 	gfx.PutPixel( 11 + pos.x,15 + pos.y,178,174,173 );
 }
 
-void SpriteCodex::DrawTileBombRed( const Vei2& pos,Graphics& gfx )
+void SpriteCodex::DrawTileMemeRed( const Vei2& pos,Graphics& gfx )
 {
 	gfx.PutPixel( 0 + pos.x,0 + pos.y,128,128,128 );
 	gfx.PutPixel( 1 + pos.x,0 + pos.y,128,128,128 );
