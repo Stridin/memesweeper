@@ -40,7 +40,7 @@ void Game::Go()
 
 void Game::UpdateModel()
 {
-	while ( !wnd.mouse.IsEmpty() )
+	while ( !wnd.mouse.IsEmpty() && field.GetState() == MemeField::GameState::Running )
 	{
 		const Mouse::Event e = wnd.mouse.Read();
 		if ( e.GetType() == Mouse::Event::Type::LPress )
