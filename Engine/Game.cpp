@@ -25,7 +25,7 @@ Game::Game( MainWindow& wnd )
 	:
 	wnd( wnd ),
 	gfx( wnd ),
-	field( 2 ),
+	field( 40, Vei2( gfx.ScreenWidth / 2, gfx.ScreenHeight / 2 ) ),
 	gameoverSound( L"spayed.wav" )
 {
 }

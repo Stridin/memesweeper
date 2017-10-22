@@ -139,16 +139,17 @@ void MemeField::Tile::SetNeighborMemeCount( int memeCount )
 	nNeighborMemes = memeCount;
 }
 
-MemeField::MemeField( int nMemes )
+MemeField::MemeField( int nMemes, Vei2 pos )
+	:
+	fieldPos(pos - Vei2( width * SpriteCodex::tileSize / 2, height * SpriteCodex::tileSize / 2 )),
+	remainingMemes(nMemes),
+	remainingHidden( width * height - nMemes )
 {
 	assert( nMemes > 0 && nMemes < width * height );
 	std::random_device rd;
 	std::mt19937 rng( rd() );
 	std::uniform_int_distribution<int> xDist( 0, width - 1 );
 	std::uniform_int_distribution<int> yDist( 0, height - 1 );
-
-	remainingHidden = width * height - nMemes;
-	remainingMemes = nMemes;
 
 	for ( int nSpawned = 0; nSpawned < nMemes; ++nSpawned )
 	{
@@ -178,7 +179,7 @@ void MemeField::Draw( Graphics& gfx ) const
 	{
 		for ( gridPos.x = 0; gridPos.x < width; gridPos.x++ )
 		{
-			TileAt( gridPos ).Draw( gridPos * SpriteCodex::tileSize, gameState, gfx );
+			TileAt( gridPos ).Draw( fieldPos + gridPos * SpriteCodex::tileSize, gameState, gfx );
 		}
 	}
 	if ( gameState == GameState::Win )
@@ -189,7 +190,7 @@ void MemeField::Draw( Graphics& gfx ) const
 
 RectI MemeField::GetRect() const
 {
-	return RectI( 0, width * SpriteCodex::tileSize, 0, height * SpriteCodex::tileSize );
+	return RectI( fieldPos.x, fieldPos.x + width * SpriteCodex::tileSize, fieldPos.y, fieldPos.y + height * SpriteCodex::tileSize );
 }
 
 void MemeField::OnRevealClick( const Vei2& screenPos )
@@ -278,5 +279,5 @@ const MemeField::Tile& MemeField::TileAt( const Vei2& gridPos ) const
 
 Vei2 MemeField::ScreenToGrid( const Vei2& screenPos )
 {
-	return screenPos / SpriteCodex::tileSize;
+	return (screenPos - fieldPos) / SpriteCodex::tileSize;
 }
