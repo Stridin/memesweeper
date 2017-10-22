@@ -30,6 +30,7 @@ public:
 		bool IsRevealed() const;
 		void ToggleFlag();
 		bool IsFlagged() const;
+		bool HasNoNeighborMemes() const;
 		void SetNeighborMemeCount( int memeCount );
 
 	private:
@@ -47,6 +48,7 @@ public:
 	GameState GetState() const;
 
 private:
+	void RevealTile( const Vei2& gridPos );
 	Tile& TileAt( const Vei2& gridPos );
 	const Tile& TileAt( const Vei2& gridPos ) const;
 	Vei2 ScreenToGrid( const Vei2& screenPos );
